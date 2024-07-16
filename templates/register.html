@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione</title>
+
+    <style>
+        .form-group {
+            margin-bottom: 15px; /*15px di spazio sotto ogni gruppo di form */
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Registrati</h1>
+    <form action="/register" method="post">
+        <div class="form-group">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="surname">Cognome:</label>
+        <input type="text" id="surname" name="surname" required><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        <label for="phone">Telefono:</label>
+        <input type="text" id="phone" name="phone" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <label for="address">Indirizzo:</label>
+        <input type="text" id="address" name="address" required><br>
+        </div>
+
+        <div class="form-group">
+        <label for="user_type">Sei un venditore?</label>
+        <input type="checkbox" id="user_type" name="user_type" value="venditore"><br>
+        <label for="address">Nome Negozio:</label>
+        <input type="text" id="shop" name="shop"><br>
+        </div>
+
+        <button type="submit">Registrati</button>
+    </form>
+</body>
+</html>
