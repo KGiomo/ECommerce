@@ -1,19 +1,3 @@
-'''import sqlalchemy as sq
-
-# SQLite supporta database transienti in RAM (echo attiva il logging)
-engine = sq.create_engine('postgresql://postgres:lamiapassword@localhost:5432/ECommerce', echo = True) # <-- verbose
-
-#possiamo cheidere all'engine di effettuare una connessione al database (ricordatevi di chiuderla)
-#possiamo usare la connessione pr inviare query al database e ricevere il risultato
-conn = engine.connect()
-
-# Esecuzione della query
-conn.exec_driver_sql("INSERT INTO Utenti (Nome, Cognome, Email, Telefono, Password, Data_Registrazione, Indirizzo) VALUES ('Mario', 'Rossi', 'mario.rossi@example.com', '1234567890', 'password', '2024-04-21', 'Via Roma, 1');")
-
-conn.commit()
-
-conn.close()'''
-
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
