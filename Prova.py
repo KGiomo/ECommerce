@@ -1,5 +1,5 @@
 from datetime import date
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, Date, Float, Time, CheckConstraint, ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,7 +7,7 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:lamiapassword@localhost:5432/ECommerce'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:21552155@localhost:5432/ECommerce'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 db = SQLAlchemy(app)
@@ -97,17 +97,24 @@ def login():
             if check_password_hash(user.Password, password):
                 session['user_id'] = user.Id_Utente
                 session['user_email'] = user.Email
+                session['user_name'] = user.Nome
+                session['user_password'] = user.Password
 
                 # Check if user is a seller or a buyer
                 seller = Venditori.query.filter_by(Utente=user.Id_Utente).first()
                 if seller:
+                    session['user_shop'] = seller.Nome_Negozio
                     return redirect(url_for('home_seller'))
                 else:
                     return redirect(url_for('home_buyer'))
             else:
-                return render_template('login.html', error='Password errata')
+                #in caso venga sbagliata la password
+                flash('Password errata.', 'error')
+                return render_template('login.html')
         else:
-            return render_template('login.html', error='Email non trovata')
+            #in caso la email non risulti registrata 
+            flash('Email non trovata.', 'error')
+            return render_template('login.html')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -128,21 +135,28 @@ def register():
         address = request.form['address']
         user_type = request.form.get('user_type')
         shop = request.form.get('shop')
-
-        hashed_password = generate_password_hash(password)
-        new_user = Utenti(Nome=name, Cognome=surname, Email=email, Telefono=phone, Password=hashed_password, Data_Registrazione=data, Indirizzo=address)
-        db.session.add(new_user)
-        db.session.commit()
-
-        if user_type == 'venditore':
-            new_venditore = Venditori(Utente=new_user.Id_Utente, Nome_Negozio=shop)
-            db.session.add(new_venditore)
+        
+        # Controllo se la mail è già presente
+        existing_user = Utenti.query.filter_by(Email=email).first()
+        if existing_user:
+            #in caso sia già presente l'email lancio il messaggio di errore
+            flash('Email già registrata. Utilizza un indirizzo email diverso.', 'error')
+            return render_template('register.html')
         else:
-            new_acquirente = Acquirenti(Id_Utente=new_user.Id_Utente)
-            db.session.add(new_acquirente)
+            hashed_password = generate_password_hash(password)
+            new_user = Utenti(Nome=name, Cognome=surname, Email=email, Telefono=phone, Password=hashed_password, Data_Registrazione=data, Indirizzo=address)
+            db.session.add(new_user)
+            db.session.commit()
 
-        db.session.commit()
-        return redirect(url_for('index'))
+            if user_type == 'venditore':
+                new_venditore = Venditori(Utente=new_user.Id_Utente, Nome_Negozio=shop)
+                db.session.add(new_venditore)
+            else:
+                new_acquirente = Acquirenti(Id_Utente=new_user.Id_Utente)
+                db.session.add(new_acquirente)
+
+            db.session.commit()
+            return redirect(url_for('index'))
     return render_template('register.html')
 
 def login_required(f):
@@ -156,14 +170,17 @@ def login_required(f):
 @app.route('/home_buyer')
 @login_required
 def home_buyer():
-    user_email = session.get('user_email')
-    return render_template('home_buyer.html', user_email=user_email)
+    return render_template('home_buyer.html')
 
 @app.route('/home_seller')
 @login_required
 def home_seller():
-    user_email = session.get('user_email')
-    return render_template('home_seller.html', user_email=user_email)
+    return render_template('home_seller.html')
+
+@app.route('/settings')
+@login_required
+def settings():
+    return render_template('settings.html')
 
 if __name__ == "__main__":
     with app.app_context():

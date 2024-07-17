@@ -4,40 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrazione</title>
-
     <style>
-        .form-group {
-            margin-bottom: 15px; /*15px di spazio sotto ogni gruppo di form */
+        .flash-message {
+            color: red;
+            font-weight: bold;
         }
     </style>
-
 </head>
 <body>
-    <h1>Registrati</h1>
-    <form action="/register" method="post">
-        <div class="form-group">
-        <label for="name">Nome:</label>
-        <input type="text" id="name" name="name" required><br>
-        <label for="surname">Cognome:</label>
-        <input type="text" id="surname" name="surname" required><br>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br>
-        <label for="phone">Telefono:</label>
-        <input type="text" id="phone" name="phone" required><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br>
-        <label for="address">Indirizzo:</label>
-        <input type="text" id="address" name="address" required><br>
+    <form method="post" action="{{ url_for('register') }}">
+        <div>
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
         </div>
-
-        <div class="form-group">
-        <label for="user_type">Sei un venditore?</label>
-        <input type="checkbox" id="user_type" name="user_type" value="venditore"><br>
-        <label for="address">Nome Negozio:</label>
-        <input type="text" id="shop" name="shop"><br>
+        <div>
+            <label for="surname">Cognome:</label>
+            <input type="text" id="surname" name="surname" required>
         </div>
-
-        <button type="submit">Registrati</button>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+            <label for="phone">Telefono:</label>
+            <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="address">Indirizzo:</label>
+            <input type="text" id="address" name="address" required>
+        </div>
+        <div>
+            <label for="user_type">Tipo di Utente:</label>
+            <select id="user_type" name="user_type" required>
+                <option value="acquirente">Acquirente</option>
+                <option value="venditore">Venditore</option>
+            </select>
+        </div>
+        <div>
+            <label for="shop">Nome del Negozio (per i venditori):</label>
+            <input type="text" id="shop" name="shop">
+        </div>
+        <div>
+            <button type="submit">Register</button>
+        </div>
     </form>
+
+    <!-- Codice che permette di lanciare il messaggio di errore nel caso l'email sia già nel database -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="flash-message">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
 </body>
 </html>
