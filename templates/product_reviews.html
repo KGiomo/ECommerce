@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recensioni del Prodotto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Recensioni del Prodotto</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
+            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
+            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Recensioni per "{{ product.Nome_Prodotto }}"</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Valutazione</th>
+                    <th>Testo</th>
+                    <th>Data</th>
+                    <th>Ora</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td>{{ review.Valutazione }}</td>
+                    <td>{{ review.Testo }}</td>
+                    <td>{{ review.Data }}</td>
+                    <td>{{ review.Ora }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
