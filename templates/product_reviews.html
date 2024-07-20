@@ -18,17 +18,29 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
+        .welcome-message {
+            margin: 0;
+        }
         .nav-links {
             display: flex;
+            flex-grow: 1;
+            justify-content: center;
             gap: 15px;
         }
         .nav-link {
+            margin: 0;
             text-decoration: none;
             color: #007bff;
             font-size: 16px;
         }
         .nav-link:hover {
             text-decoration: underline;
+        }
+        .shop-name {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
         }
         .content {
             padding: 20px;
@@ -48,8 +60,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>Recensioni del Prodotto</h1>
+        <h1 class="welcome-message">Recensioni del Prodotto</h1>
         <div class="nav-links">
+            <span class="shop-name">{{ session['user_shop'] }}</span>
             <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
             <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
             <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
@@ -71,7 +84,7 @@
             <tbody>
                 {% for review in reviews %}
                 <tr>
-                    <td>{{ review.Valutazione }}</td>
+                    <td>{{ review.Valutazione }} / 5</td>
                     <td>{{ review.Testo }}</td>
                     <td>{{ review.Data }}</td>
                     <td>{{ review.Ora }}</td>
