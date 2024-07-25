@@ -1,0 +1,20 @@
+CREATE OR REPLACE FUNCTION check_and_update_quantity() RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica la quantità disponibile del prodotto
+    IF (SELECT "Quantità" FROM prodotti WHERE "Id_Prodotto" = NEW."Prodotto") < NEW."Quantità" THEN
+        RAISE EXCEPTION 'Quantità richiesta (%s) eccede la disponibilità.', NEW."Quantità";
+    END IF;
+
+    -- Aggiorna la quantità disponibile
+    UPDATE prodotti
+    SET "Quantità" = "Quantità" - NEW."Quantità"
+    WHERE "Id_Prodotto" = NEW."Prodotto";
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_check_and_update_quantity
+BEFORE INSERT ON Ordinato
+FOR EACH ROW
+EXECUTE FUNCTION check_and_update_quantity();

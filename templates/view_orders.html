@@ -72,6 +72,16 @@
     </div>
     <div class="content">
         <h2>Ordini</h2>
+        <form method="get" action="{{ url_for('view_orders') }}">
+            <label for="stato_ordine">Filtra per stato:</label>
+            <select name="stato_ordine" id="stato_ordine">
+                <option value="">Tutti</option>
+                <option value="In attesa">In attesa</option>
+                <option value="In corso">In corso</option>
+                <option value="Consegnato">Consegnato</option>
+            </select>
+            <button type="submit">Filtra</button>
+        </form>
         <table>
             <thead>
                 <tr>
@@ -83,7 +93,6 @@
                     <th>Nome Acquirente</th>
                     <th>Cognome Acquirente</th>
                     <th>Prodotto</th>
-                    <th>Quantità</th>
                 </tr>
             </thead>
             <tbody>
@@ -91,15 +100,24 @@
                 <tr>
                     <td>{{ ordine.Id_Ordine }}</td>
                     <td>{{ ordine.Data_Ordine }}</td>
-                    <td>{{ ordine.Stato_Ordine }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('update_order_status', ordine_id=ordine.Id_Ordine) }}">
+                            <select name="stato_ordine">
+                                <option value="In attesa" {% if ordine.Stato_Ordine == 'In attesa' %}selected{% endif %}>In attesa</option>
+                                <option value="In corso" {% if ordine.Stato_Ordine == 'In corso' %}selected{% endif %}>In corso</option>
+                                <option value="Consegnato" {% if ordine.Stato_Ordine == 'Consegnato' %}selected{% endif %}>Consegnato</option>
+                            </select>
+                            <button type="submit">Aggiorna</button>
+                        </form>
+                    </td>
                     <td>{{ ordine.Indirizzo_Spedizione }}</td>
                     <td>{{ ordine.Metodo_Pagamento }}</td>
                     <td>{{ Nome_Acquirente }}</td>
                     <td>{{ Cognome_Acquirente }}</td>
                     <td>
                         <ul>
-                            {% for prodotto in ordine.prodotti %}
-                                <li>{{ prodotto.Nome_Prodotto }} - Quantità: {{ prodotto.quantità }}</li>
+                            {% for item in ordine.ordinato %}
+                                <li>{{ item.prodotto.Nome_Prodotto }} - Quantità: {{ item.Quantità }}</li>
                             {% endfor %}
                         </ul>
                     </td>

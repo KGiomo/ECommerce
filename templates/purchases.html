@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recensioni del Prodotto</title>
+    <title>Carrello</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,8 +23,6 @@
         }
         .nav-links {
             display: flex;
-            flex-grow: 1;
-            justify-content: center;
             gap: 15px;
         }
         .nav-link {
@@ -35,12 +33,6 @@
         }
         .nav-link:hover {
             text-decoration: underline;
-        }
-        .shop-name {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 16px;
-            color: #333;
         }
         .content {
             padding: 20px;
@@ -56,42 +48,42 @@
             padding: 10px;
             text-align: left;
         }
+        .link-container {
+            margin-bottom: 10px; /* Regola la distanza tra i link */
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 class="welcome-message">Recensioni del Prodotto</h1>
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
         <div class="nav-links">
-            <span class="shop-name">{{ session['user_shop'] }}</span>
-            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
-            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
-            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
             <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
             <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
     <div class="content">
-        <h2>Recensioni per "{{ prodotto.Nome_Prodotto }}"</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Valutazione</th>
-                    <th>Titolo</th>
-                    <th>Testo</th>
-                    <th>Data</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for recensione in recensioni %}
-                <tr>
-                    <td>{{ recensione.Valutazione }} / 5</td>
-                    <td>{{ recensione.Titolo }}</td>
-                    <td>{{ recensione.Testo }}</td>
-                    <td>{{ recensione.Data }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <h2>I tuoi ordini</h2>
+        {% for ordine, ordinato, prodotto, venditore in orders %}
+            <div class="order">
+                <h3>Ordine ID: {{ ordine.Id_Ordine }}</h3>
+                <p>Data Ordine: {{ ordine.Data_Ordine }}</p>
+                <p>Stato Ordine: {{ ordine.Stato_Ordine }}</p>
+                <p>Indirizzo Spedizione: {{ ordine.Indirizzo_Spedizione }}</p>
+                <p>Metodo Pagamento: {{ ordine.Metodo_Pagamento }}</p>
+                <h4>Prodotti:</h4>
+                <ul>
+                    <li>
+                        <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" width="50">
+                        {{ prodotto.Nome_Prodotto }} - Quantità: {{ ordinato.Quantità }} - Prezzo Totale: €{{ prodotto.Prezzo * ordinato.Quantità }}
+                        <br>Nome del Negozio: {{ venditore.Nome_Negozio }}
+                    </li>
+                </ul>
+            </div>
+            <hr>
+        {% endfor %}
     </div>
 </body>
 </html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{prodotto.Nome_Prodotto}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        .product-details {
+            display: flex;
+            gap: 20px;
+        }
+        .product-image {
+            max-width: 300px;
+            max-height: 300px;
+        }
+        .product-info {
+            flex-grow: 1;
+        }
+        .reviews {
+            margin-top: 20px;
+        }
+        .review {
+            border-top: 1px solid #dee2e6;
+            padding: 10px 0;
+        }
+        .review:first-child {
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="product-details">
+            <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" class="product-image">
+            <div class="product-info">
+                <h2>{{ prodotto.Nome_Prodotto }}</h2>
+                <p>{{ prodotto.Descrizione }}</p>
+                <p><strong>Prezzo:</strong> €{{ prodotto.Prezzo }}</p>
+                <p><strong>Categoria:</strong> {{ prodotto.Categoria }}</p>
+                <p><strong>Quantità Disponibile:</strong> {{ prodotto.Quantità }}</p>
+                <p><strong>Venditore:</strong> {{ prodotto.venditore.Nome_Negozio }}</p>
+            </div>
+        </div>
+        <div class="order-form">
+            <form action="{{ url_for('add_to_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <label for="quantity">Quantità:</label>
+                <input type="number" id="quantity" name="quantity" value="1">
+                <button type="submit">Aggiungi al Carrello</button>
+                <button type="submit" formaction="{{ url_for('place_order') }}">Ordina Ora</button>   
+            </form>
+        </div>
+        <div>
+            <br><br>
+            <form action="{{ url_for('write_review', product_id=prodotto.Id_Prodotto) }}" method="get">
+                <button type="submit">Scrivi una Recensione</button>
+            </form>
+        </div>
+        <div class="order-options">
+            <label>Ordina per:</label>
+            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='recent') }}">Più recenti</a>
+            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='oldest') }}">Più vecchi</a>
+            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='highest_rating') }}">Valutazione più alta</a>
+            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='lowest_rating') }}">Valutazione più bassa</a>
+        </div>
+        <div class="reviews">
+            <h3>Recensioni</h3>
+            {% for recensione, nome, cognome in recensioni %}
+            <div class="review">
+                <p><strong>Titolo:</strong> {{ recensione.Titolo }}</p>
+                <p><strong>Valutazione:</strong> {{ recensione.Valutazione }}</p>
+                <p>{{ recensione.Testo }}</p>
+                <p><small>Recensito da {{ nome }} {{ cognome }} il {{ recensione.Data }}</small></p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
