@@ -70,6 +70,13 @@
             <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
+    <div class="content"><br><br>
+        <label>Ordina per:</label>
+        <a href="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto, order='recent') }}">Più recenti</a>
+        <a href="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto, order='oldest') }}">Più vecchi</a>
+        <a href="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto, order='highest_rating') }}">Valutazione più alta</a>
+        <a href="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto, order='lowest_rating') }}">Valutazione più bassa</a>
+    </div>
     <div class="content">
         <h2>Recensioni per "{{ prodotto.Nome_Prodotto }}"</h2>
         <table>

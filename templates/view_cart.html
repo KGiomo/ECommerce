@@ -103,15 +103,31 @@
             </tbody>
         </table>
         <div class="order-form">
-            <h3>Completa l'ordine</h3>
-            <form action="{{ url_for('place_order') }}" method="POST">
-                <label for="indirizzo">Indirizzo di spedizione:</label>
-                <input type="text" id="indirizzo" name="indirizzo" required>
-                <br>
-                <label for="metodo_pagamento">Metodo di pagamento:</label>
-                <input type="text" id="metodo_pagamento" name="metodo_pagamento" required>
-                <br>
-                <button type="submit">Effettua Ordine</button>
+            <h2>Completa il tuo ordine</h2>
+            <form action="{{ url_for('place_order_cart') }}" method="post">
+                <div class="form-group">
+                    <label for="address">Indirizzo di Spedizione</label>
+                    <textarea id="address" name="address" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="city">Città</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="zip_code">CAP</label>
+                    <input type="text" id="zip_code" name="zip_code" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment_method">Metodo di Pagamento</label>
+                    <select id="payment_method" name="payment_method" required>
+                        <option value="Carta di Credito">Carta di Credito</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Bonifico Bancario">Bonifico Bancario</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" formaction="{{ url_for('place_order_cart') }}">Effettua l'Ordine</button>
+                </div>
             </form>
         </div>
     </div>

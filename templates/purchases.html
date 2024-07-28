@@ -73,12 +73,12 @@
                 <p>Stato Ordine: {{ ordine.Stato_Ordine }}</p>
                 <p>Indirizzo Spedizione: {{ ordine.Indirizzo_Spedizione }}</p>
                 <p>Metodo Pagamento: {{ ordine.Metodo_Pagamento }}</p>
-                <h4>Prodotti:</h4>
+                <h4>Prodotto:</h4>
                 <ul>
                     <li>
                         <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" width="50">
                         {{ prodotto.Nome_Prodotto }} - Quantità: {{ ordinato.Quantità }} - Prezzo Totale: €{{ prodotto.Prezzo * ordinato.Quantità }}
-                        <br>Nome del Negozio: {{ venditore.Nome_Negozio }}
+                        <br><br><br>Nome del Negozio: {{ venditore.Nome_Negozio }}
                     </li>
                 </ul>
             </div>

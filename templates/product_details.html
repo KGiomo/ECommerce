@@ -86,15 +86,19 @@
         <div class="order-form">
             <form action="{{ url_for('add_to_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
                 <label for="quantity">Quantità:</label>
-                <input type="number" id="quantity" name="quantity" value="1">
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
                 <button type="submit">Aggiungi al Carrello</button>
-                <button type="submit" formaction="{{ url_for('place_order') }}">Ordina Ora</button>   
+            </form><br><br>
+         
+            <form action="{{ url_for('place_order_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit">Ordina Ora</button>   
             </form>
         </div>
         <div>
             <br><br>
             <form action="{{ url_for('write_review', product_id=prodotto.Id_Prodotto) }}" method="get">
-                <button type="submit">Scrivi una Recensione</button>
+                <button type="submit">Scrivi una Recensione</button><br><br>
             </form>
         </div>
         <div class="order-options">
@@ -109,7 +113,7 @@
             {% for recensione, nome, cognome in recensioni %}
             <div class="review">
                 <p><strong>Titolo:</strong> {{ recensione.Titolo }}</p>
-                <p><strong>Valutazione:</strong> {{ recensione.Valutazione }}</p>
+                <p><strong>Valutazione:</strong> {{ recensione.Valutazione }} / 5</p>
                 <p>{{ recensione.Testo }}</p>
                 <p><small>Recensito da {{ nome }} {{ cognome }} il {{ recensione.Data }}</small></p>
             </div>

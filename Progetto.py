@@ -210,6 +210,7 @@ def register():
         email = request.form['email']
         phone = request.form['phone']
         password = request.form['password']
+        repassword = request.form['repassword']
         data = date.today()
         address = request.form['address']
         user_type = request.form.get('user_type')
@@ -220,6 +221,10 @@ def register():
         if existing_user:
             # In caso sia già presente l'email lancio il messaggio di errore
             flash('Email già registrata. Utilizza un indirizzo email diverso.', 'error')
+            return render_template('register.html')
+        elif password != repassword:
+            # In caso sia le due password inserite non coincidano
+            flash('Le due Password non corrispondono.', 'error')
             return render_template('register.html')
         else:
             hashed_password = generate_password_hash(password)
@@ -355,8 +360,18 @@ def product_reviews(product_id):
     # SELECT * FROM Prodotti WHERE Id_Prodotto = product_id AND Venditore = user_id LIMIT 1;
     prodotto = Prodotti.query.filter_by(Id_Prodotto=product_id, Venditore=user_id).first()
     # Recupero le recensioni per il prodotto desiderato
-    # SELECT * FROM Recensioni WHERE Id_Prodotto = product_id;
-    recensioni = Recensioni.query.filter_by(Prodotto=product_id).all()
+    order = request.args.get('order', 'recent')  # Default 'recent' se non specificato
+    if order == 'recent':
+        recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
+    elif order == 'oldest':
+        recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.asc()).all()
+    elif order == 'highest_rating':
+        recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Valutazione.desc()).all()
+    elif order == 'lowest_rating':
+        recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Valutazione.asc()).all()
+    else:
+        recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
+        flash('Ordinamento non valido, mostrate le recensioni più recenti.', 'warning')
     
     return render_template('product_reviews.html', prodotto=prodotto, recensioni=recensioni)
 
@@ -621,24 +636,33 @@ def purchases():
 
     return render_template('purchases.html', orders=orders)
 
-@app.route('/place_order', methods=['POST'])
+@app.route('/place_order_cart', methods=['POST'])
 @buyer_required
-def place_order():
+def place_order_cart():
     user_id = session['user_id']
     carrello = Carrelli.query.filter_by(Acquirente=user_id).first()
-    indirizzo = request.form['indirizzo']
-    metodo_pagamento = request.form['metodo_pagamento']
     
+    # Recupero dei dati dal modulo HTML
+    indirizzo = request.form.get('address')
+    citta = request.form.get('city')
+    cap = request.form.get('zip_code')
+    metodo_pagamento = request.form.get('payment_method')
+    
+    if not indirizzo or not citta or not cap or not metodo_pagamento:
+        return redirect(url_for('view_cart'))
+
+    # Creazione dell'ordine
     ordine = Ordini(
         Data_Ordine=date.today(),
         Stato_Ordine='In attesa',
-        Indirizzo_Spedizione=indirizzo,
+        Indirizzo_Spedizione=f"{indirizzo}, {citta}, {cap}",
         Metodo_Pagamento=metodo_pagamento,
         Acquirente=user_id
     )
     db.session.add(ordine)
-    db.session.flush()  # Flush per ottenere l'Id_Ordine generato
+    db.session.flush()  
 
+    # Aggiunta dei prodotti all'ordine
     for item in carrello.contiene:
         ordinato = Ordinato(
             Ordine=ordine.Id_Ordine,
@@ -647,8 +671,10 @@ def place_order():
         )
         db.session.add(ordinato)
     
-    carrello.contiene.clear()  # Svuotiamo il carrello dopo l'ordine
+    # Svuotiamo il carrello dopo l'ordine
+    carrello.contiene.clear()
     db.session.commit()
+    
     return redirect(url_for('view_cart'))
 
 if __name__ == "__main__":
