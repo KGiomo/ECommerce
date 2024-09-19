@@ -355,11 +355,9 @@ def add_product():
 @seller_required
 def product_reviews(product_id):
     user_id = session['user_id']
-    # Recupero i dettagli del prodotto
-    # SELECT * FROM Prodotti WHERE Id_Prodotto = product_id AND Venditore = user_id LIMIT 1;
     prodotto = Prodotti.query.filter_by(Id_Prodotto=product_id, Venditore=user_id).first()
-    # Recupero le recensioni per il prodotto desiderato
-    order = request.args.get('order', 'recent')  # Default 'recent' se non specificato
+    order = request.args.get('order', 'recent')  # Di default 'recent'
+    
     if order == 'recent':
         recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
     elif order == 'oldest':
@@ -372,6 +370,7 @@ def product_reviews(product_id):
         recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
     
     return render_template('product_reviews.html', prodotto=prodotto, recensioni=recensioni)
+
 
 @app.route('/edit_product/<int:id>', methods=['GET', 'POST'])
 @seller_required
