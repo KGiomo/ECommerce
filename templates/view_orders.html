@@ -105,7 +105,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for ordine, Nome_Acquirente, Cognome_Acquirente in ordini %}
+                {% for ordine, Nome_Acquirente, Cognome_Acquirente, prodotti_filtrati in ordini %}
                 <tr>
                     <td>{{ ordine.Id_Ordine }}</td>
                     <td>{{ ordine.Data_Ordine }}</td>
@@ -125,7 +125,7 @@
                     <td>{{ Cognome_Acquirente }}</td>
                     <td>
                         <ul>
-                            {% for item in ordine.ordinato %}
+                            {% for item in prodotti_filtrati %}
                                 <li>{{ item.prodotto.Nome_Prodotto }} - Quantità: {{ item.Quantità }}</li>
                             {% endfor %}
                         </ul>
@@ -133,6 +133,7 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            
         </table>
     </div>
 </body>
