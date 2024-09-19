@@ -91,6 +91,7 @@
             </form><br><br>
          
             <form action="{{ url_for('checkout_product_get', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <label for="quantity">Quantità:</label>
                 <input type="number" id="quantity" name="quantity" value="1" min="1" required>
                 <button type="submit">Acquista Ora</button>
             </form>
@@ -102,15 +103,21 @@
                 <button type="submit">Scrivi una Recensione</button><br><br>
             </form>
         </div>
-        <div class="order-options">
-            <label>Ordina per:</label>
-            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='recent') }}">Più recenti</a>
-            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='oldest') }}">Più vecchi</a>
-            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='highest_rating') }}">Valutazione più alta</a>
-            <a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto, order='lowest_rating') }}">Valutazione più bassa</a>
+        <h3>Recensioni</h3>
+        <div class="review-filter-form">
+            <form method="get" action="{{ url_for('product_details', product_id=prodotto.Id_Prodotto) }}">
+                <label for="order">Ordina per:</label>
+                <select name="order" id="order">
+                    <option value="recent" {% if request.args.get('order') == 'recent' %}selected{% endif %}>Più recenti</option>
+                    <option value="oldest" {% if request.args.get('order') == 'oldest' %}selected{% endif %}>Meno recenti</option>
+                    <option value="highest_rating" {% if request.args.get('order') == 'highest_rating' %}selected{% endif %}>Valutazione più alta</option>
+                    <option value="lowest_rating" {% if request.args.get('order') == 'lowest_rating' %}selected{% endif %}>Valutazione più bassa</option>
+                </select>
+                <button type="submit">Applica</button>
+            </form>
         </div>
+        <br><hr>
         <div class="reviews">
-            <h3>Recensioni</h3>
             {% for recensione, nome, cognome in recensioni %}
             <div class="review">
                 <p><strong>Titolo:</strong> {{ recensione.Titolo }}</p>

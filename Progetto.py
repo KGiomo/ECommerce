@@ -7,7 +7,7 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:lamiapassword@localhost:5432/ECommerce'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:21552155@localhost:5432/ECommerce'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 db = SQLAlchemy(app)
