@@ -84,16 +84,17 @@
             </div>
         </div>
         <div class="order-form">
-            <form action="{{ url_for('add_to_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
+            <br><form action="{{ url_for('add_to_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
                 <label for="quantity">Quantità:</label>
                 <input type="number" id="quantity" name="quantity" value="1" min="1" required>
                 <button type="submit">Aggiungi al Carrello</button>
             </form><br><br>
          
-            <form action="{{ url_for('place_order_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit">Ordina Ora</button>   
+            <form action="{{ url_for('checkout_product_get', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+                <button type="submit">Acquista Ora</button>
             </form>
+            
         </div>
         <div>
             <br><br>

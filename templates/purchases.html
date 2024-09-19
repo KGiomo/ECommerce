@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrello</title>
+    <title>I tuoi Ordini</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -49,7 +49,7 @@
             text-align: left;
         }
         .link-container {
-            margin-bottom: 10px; /* Regola la distanza tra i link */
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -73,14 +73,16 @@
                 <p>Stato Ordine: {{ ordine.Stato_Ordine }}</p>
                 <p>Indirizzo Spedizione: {{ ordine.Indirizzo_Spedizione }}</p>
                 <p>Metodo Pagamento: {{ ordine.Metodo_Pagamento }}</p>
+                <p>Nome del Negozio: {{ venditore.Nome_Negozio }}</p>
                 <h4>Prodotto:</h4>
                 <ul>
                     <li>
                         <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" width="50">
                         {{ prodotto.Nome_Prodotto }} - Quantità: {{ ordinato.Quantità }} - Prezzo Totale: €{{ prodotto.Prezzo * ordinato.Quantità }}
-                        <br><br><br>Nome del Negozio: {{ venditore.Nome_Negozio }}
                     </li>
                 </ul>
+                <div class="link-container"><a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
+                <br>
             </div>
             <hr>
         {% endfor %}

@@ -56,7 +56,8 @@
         }
         .product-price,
         .product-category,
-        .shop {
+        .shop,
+        .product-rating {
             margin: 5px 0;
             font-size: 18px;
         }
@@ -77,7 +78,7 @@
         </div>
     </div>
     <div>
-        {% for product, nome_negozio in products %}
+        {% for product, nome_negozio, media_valutazione in products %}
             <div class="product-container">
                 <img src="{{ product.URL_Immagine }}" alt="{{ product.Nome_Prodotto }}" class="product-image">
                 <div class="product-details">
@@ -85,6 +86,14 @@
                     <p class="shop">Venditore: {{ nome_negozio }}</p>
                     <p class="product-price">Prezzo: €{{ product.Prezzo }}</p>
                     <p class="product-category">Categoria: {{ product.Categoria }}</p><br><br>
+                    <p class="product-rating">
+                        Valutazione media: 
+                        {% if media_valutazione is not none %}
+                            {{ media_valutazione | round(1) }} / 5
+                        {% else %}
+                            0 / 5
+                        {% endif %}
+                    </p><br>
                     <div class="link-container"><a href="{{ url_for('product_details', product_id=product.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
                 </div>
             </div>

@@ -347,7 +347,6 @@ def add_product():
         
         db.session.add(new_product)
         db.session.commit()
-        #flash('Prodotto aggiunto con successo.', 'success')
         return redirect(url_for('view_products'))
     
     return render_template('add_product.html')
@@ -371,7 +370,6 @@ def product_reviews(product_id):
         recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Valutazione.asc()).all()
     else:
         recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
-        flash('Ordinamento non valido, mostrate le recensioni più recenti.', 'warning')
     
     return render_template('product_reviews.html', prodotto=prodotto, recensioni=recensioni)
 
@@ -391,7 +389,6 @@ def edit_product(id):
         product.URL_Immagine = request.form['image_url']
         
         db.session.commit()
-        flash('Prodotto aggiornato con successo.', 'success')
         return redirect(url_for('view_products'))
     
     return render_template('edit_product.html', product=product)
@@ -412,6 +409,7 @@ def delete_product(id):
 def view_orders():
     user_id = session['user_id']
     stato_ordine = request.args.get('stato_ordine')
+    order_by = request.args.get('order_by', 'id') # Default: ordina per ID
     
     # Query per ottenere gli ordini contenenti prodotti del venditore corrente
     orders_query = db.session.query(Ordini, Utenti.Nome.label('Nome_Acquirente'), Utenti.Cognome.label('Cognome_Acquirente')) \
@@ -425,6 +423,15 @@ def view_orders():
     if stato_ordine:
         orders_query = orders_query.filter(Ordini.Stato_Ordine == stato_ordine)
     
+    
+    # Ordinare in base al criterio selezionato
+    if order_by == 'recent':
+        orders_query = orders_query.order_by(Ordini.Data_Ordine.desc())
+    elif order_by == 'oldest':
+        orders_query = orders_query.order_by(Ordini.Data_Ordine.asc())
+    else:  # Default: ordina per ID
+        orders_query = orders_query.order_by(Ordini.Id_Ordine.asc())
+        
     orders = orders_query.all()
     
     return render_template('view_orders.html', ordini=orders)
@@ -456,8 +463,18 @@ def search_product():
         prezzo_max = request.form.get('max_price', None)
         venditore = request.form.get('seller', '')
         
-        prodotti = db.session.query(Prodotti, Venditori.Nome_Negozio).join(Venditori, Prodotti.Venditore == Venditori.Utente)
+        #prodotti = db.session.query(Prodotti, Venditori.Nome_Negozio).join(Venditori, Prodotti.Venditore == Venditori.Utente)
+        
+        # Query per ottenere tutti i prodotti con la media dei voti delle relative recensioni
+        prodotti = db.session.query(
+            Prodotti, 
+            Venditori.Nome_Negozio,
+            func.avg(Recensioni.Valutazione).label('media_valutazione')
+        ).outerjoin(Venditori, Prodotti.Venditore == Venditori.Utente
+        ).outerjoin(Recensioni, Prodotti.Id_Prodotto == Recensioni.Prodotto
+        ).group_by(Prodotti.Id_Prodotto, Venditori.Nome_Negozio)
 
+        # Filtraggio dei prodotti secondo i criteri scelti dall'utente
         if keyword:
             prodotti = prodotti.filter(Prodotti.Nome_Prodotto.ilike(f'%{keyword}%') | Prodotti.Descrizione.ilike(f'%{keyword}%'))
         
@@ -599,7 +616,6 @@ def register_review(product_id):
 def add_to_cart(product_id):
     quantity = request.form.get('quantity', type=int)
     if quantity is None or quantity < 1:
-        flash('Quantità non valida', 'error')
         return redirect(url_for('product_details', product_id=product_id))
     
     user_id = session['user_id']
@@ -618,7 +634,6 @@ def add_to_cart(product_id):
         db.session.add(contiene)
     
     db.session.commit()
-    flash('Prodotto aggiunto al carrello', 'success')
     return redirect(url_for('view_cart'))
     
 @app.route('/purchases')
@@ -636,46 +651,136 @@ def purchases():
 
     return render_template('purchases.html', orders=orders)
 
-@app.route('/place_order_cart', methods=['POST'])
+@app.route('/checkout_cart', methods=['GET', 'POST'])
 @buyer_required
-def place_order_cart():
-    user_id = session['user_id']
-    carrello = Carrelli.query.filter_by(Acquirente=user_id).first()
+def checkout_cart():
+    user_id = session.get('user_id')
+    buyer = Acquirenti.query.filter_by(Id_Utente=user_id).first()
     
-    # Recupero dei dati dal modulo HTML
-    indirizzo = request.form.get('address')
-    citta = request.form.get('city')
-    cap = request.form.get('zip_code')
-    metodo_pagamento = request.form.get('payment_method')
+    # Recupera il carrello dell'acquirente
+    carrello = Carrelli.query.filter_by(Acquirente=buyer.Id_Utente).first()
     
-    if not indirizzo or not citta or not cap or not metodo_pagamento:
+    if not carrello:
         return redirect(url_for('view_cart'))
 
-    # Creazione dell'ordine
-    ordine = Ordini(
-        Data_Ordine=date.today(),
-        Stato_Ordine='In attesa',
-        Indirizzo_Spedizione=f"{indirizzo}, {citta}, {cap}",
-        Metodo_Pagamento=metodo_pagamento,
-        Acquirente=user_id
-    )
-    db.session.add(ordine)
-    db.session.flush()  
-
-    # Aggiunta dei prodotti all'ordine
-    for item in carrello.contiene:
-        ordinato = Ordinato(
-            Ordine=ordine.Id_Ordine,
-            Prodotto=item.Prodotto,
-            Quantità=item.Quantità
+    # Recupera gli elementi del carrello
+    items_in_cart = Contiene.query.filter_by(Carrello=carrello.Id_Carrello).all()
+    
+    # Crea una lista di articoli per il riepilogo dell'ordine
+    cart_items = []
+    for item in items_in_cart:
+        prodotto = Prodotti.query.get(item.Prodotto)
+        negozio = Venditori.query.get(prodotto.Venditore).Nome_Negozio if prodotto.Venditore else 'N/A'
+        cart_items.append({
+            'prodotto': prodotto,
+            'quantità': item.Quantità,
+            'totale': prodotto.Prezzo * item.Quantità,
+            'negozio': negozio
+        })
+    
+    if request.method == 'POST':
+        shipping_address = request.form['address']
+        city = request.form['city']
+        zip_code = request.form['zip_code']
+        payment_method = request.form['payment_method']
+        
+        # Crea un nuovo ordine
+        new_order = Ordini(
+            Data_Ordine=date.today(),
+            Ora=datetime.now().time(),
+            Stato_Ordine="In attesa",
+            Indirizzo_Spedizione=f"{shipping_address}, {city}, {zip_code}",
+            Metodo_Pagamento=payment_method,
+            Acquirente=buyer.Id_Utente
         )
-        db.session.add(ordinato)
+        
+        db.session.add(new_order)
+        # Flush per ottenere l'Id_Ordine
+        db.session.flush()  
+
+        # Aggiunge i prodotti ordinati alla tabella Ordinato
+        for item in items_in_cart:
+            ordinato_item = Ordinato(
+                Ordine=new_order.Id_Ordine,
+                Prodotto=item.Prodotto,
+                Quantità=item.Quantità
+            )
+            db.session.add(ordinato_item)
+        
+        # Rimuovo gli articoli dal carrello
+        Contiene.query.filter_by(Carrello=carrello.Id_Carrello).delete()
+
+        # Elimino il carrello dopo il checkout
+        db.session.delete(carrello)
+        
+        db.session.commit()
+        
+        return redirect(url_for('purchases'))
+
+    # Mostra l'indirizzo di default dell'utente
+    default_address = buyer.utente.Indirizzo
+
+    return render_template('checkout_cart.html', default_address=default_address, cart_items=cart_items)
+                         
+@app.route('/checkout_product_get/<int:product_id>', methods=['GET', 'POST']) 
+@buyer_required
+def checkout_product_get(product_id):
+    user_id = session.get('user_id')
+    buyer = Acquirenti.query.filter_by(Id_Utente=user_id).first()
     
-    # Svuotiamo il carrello dopo l'ordine
-    carrello.contiene.clear()
-    db.session.commit()
+    product = Prodotti.query.get(product_id)  # Ottengo il prodotto dal database
     
-    return redirect(url_for('view_cart'))
+    # Mostra l'indirizzo di default dell'utente
+    default_address = buyer.utente.Indirizzo
+
+    if request.method == 'POST':
+        quantity = request.form.get('quantity', default=1, type=int)
+    else:
+        quantity = 1
+
+    total = quantity * product.Prezzo
+
+    seller = product.venditore.Nome_Negozio
+
+    return render_template('checkout_product.html', default_address=default_address, product=product, quantity=quantity, total=total, seller=seller)
+
+@app.route('/checkout_product_post/<int:product_id>', methods=['GET', 'POST']) 
+@buyer_required
+def checkout_product_post(product_id):
+    user_id = session.get('user_id')
+    buyer = Acquirenti.query.filter_by(Id_Utente=user_id).first()
+    
+    if request.method == 'POST':
+        shipping_address = request.form['address']
+        city = request.form['city']
+        zip_code = request.form['zip_code']
+        payment_method = request.form['payment_method']
+        
+        # Crea un nuovo ordine
+        new_order = Ordini(
+            Data_Ordine=date.today(),
+            Ora=datetime.now().time(),
+            Stato_Ordine="In attesa",
+            Indirizzo_Spedizione=f"{shipping_address}, {city}, {zip_code}",
+            Metodo_Pagamento=payment_method,
+            Acquirente=buyer.Id_Utente
+        )
+        
+        db.session.add(new_order)
+        db.session.flush()  # Flush per ottenere l'Id_Ordine
+
+        quantity = request.form.get('quantity', 1)  # Di default 1 se non viene passata nessuna quantità
+        # Aggiungo il prodotto all'ordine
+        ordinato_item = Ordinato(
+            Ordine=new_order.Id_Ordine,
+            Prodotto=product_id,
+            Quantità=quantity
+        )
+
+        db.session.add(ordinato_item)
+        db.session.commit()
+        
+        return redirect(url_for('purchases'))
 
 if __name__ == "__main__":
     with app.app_context():
