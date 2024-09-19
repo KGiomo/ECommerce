@@ -7,7 +7,7 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:latuapassword@localhost:5432/ECommerce'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:21552155@localhost:5432/ECommerce'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 db = SQLAlchemy(app)
@@ -408,7 +408,7 @@ def delete_product(id):
 def view_orders():
     user_id = session['user_id']
     stato_ordine = request.args.get('stato_ordine')
-    order_by = request.args.get('order_by', 'id') # Default: ordina per ID
+    order_by = request.args.get('order_by', 'id')  # Default: ordina per ID
     
     # Query per ottenere gli ordini contenenti prodotti del venditore corrente
     orders_query = db.session.query(Ordini, Utenti.Nome.label('Nome_Acquirente'), Utenti.Cognome.label('Cognome_Acquirente')) \
@@ -417,11 +417,10 @@ def view_orders():
                              .join(Ordinato, Ordini.Id_Ordine == Ordinato.Ordine) \
                              .join(Prodotti, Ordinato.Prodotto == Prodotti.Id_Prodotto) \
                              .join(Venditori, Prodotti.Venditore == Venditori.Utente) \
-                             .filter(Venditori.Utente == user_id)
+                             .filter(Venditori.Utente == user_id)  # Filtra per venditore
     
     if stato_ordine:
         orders_query = orders_query.filter(Ordini.Stato_Ordine == stato_ordine)
-    
     
     # Ordinare in base al criterio selezionato
     if order_by == 'recent':
@@ -430,10 +429,19 @@ def view_orders():
         orders_query = orders_query.order_by(Ordini.Data_Ordine.asc())
     else:  # Default: ordina per ID
         orders_query = orders_query.order_by(Ordini.Id_Ordine.asc())
-        
+    
+    # Esegui la query
     orders = orders_query.all()
     
-    return render_template('view_orders.html', ordini=orders)
+    # Filtro aggiuntivo sui prodotti per venditore
+    filtered_orders = []
+    for ordine, Nome_Acquirente, Cognome_Acquirente in orders:
+        prodotti_filtrati = [item for item in ordine.ordinato if item.prodotto.Venditore == user_id]
+        if prodotti_filtrati:
+            filtered_orders.append((ordine, Nome_Acquirente, Cognome_Acquirente, prodotti_filtrati))
+
+    return render_template('view_orders.html', ordini=filtered_orders)
+
 
 @app.route('/update_order_status/<int:ordine_id>', methods=['POST'])
 @seller_required
