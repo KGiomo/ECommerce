@@ -5,10 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benvenuto</title>
     <style>
+
+        input[type="number"],
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;   
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
         }
         .header {
             display: flex;
@@ -85,7 +102,7 @@
         <label for="seller">Venditore:</label>
         <input type="text" id="seller" name="seller"><br><br>
         
-        <input type="submit" value="Cerca">
+        <input type="submit" value="Cerca"class="submit-button">
     </form>
 </body>
 </html>
