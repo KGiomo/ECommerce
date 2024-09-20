@@ -647,16 +647,33 @@ def add_to_cart(product_id):
 @buyer_required
 def purchases():
     user_id = session['user_id']
-    
-    # Recupera tutti gli ordini dell'acquirente
-    orders = (db.session.query(Ordini, Ordinato, Prodotti, Venditori)
-              .join(Ordinato, Ordini.Id_Ordine == Ordinato.Ordine)
-              .join(Prodotti, Ordinato.Prodotto == Prodotti.Id_Prodotto)
-              .join(Venditori, Prodotti.Venditore == Venditori.Utente)
-              .filter(Ordini.Acquirente == user_id)
-              .all())
+    stato_ordine = request.args.get('stato_ordine')
+    order_by = request.args.get('order_by', 'id')  # Default sorting by ID
+
+    # Base query to retrieve all orders for the buyer
+    orders_query = (db.session.query(Ordini, Ordinato, Prodotti, Venditori)
+                    .join(Ordinato, Ordini.Id_Ordine == Ordinato.Ordine)
+                    .join(Prodotti, Ordinato.Prodotto == Prodotti.Id_Prodotto)
+                    .join(Venditori, Prodotti.Venditore == Venditori.Utente)
+                    .filter(Ordini.Acquirente == user_id))
+
+    # Apply filters if selected
+    if stato_ordine:
+        orders_query = orders_query.filter(Ordini.Stato_Ordine == stato_ordine)
+
+    # Apply sorting based on selected option
+    if order_by == 'recent':
+        orders_query = orders_query.order_by(Ordini.Data_Ordine.desc())
+    elif order_by == 'oldest':
+        orders_query = orders_query.order_by(Ordini.Data_Ordine.asc())
+    else:  # Default sorting by ID
+        orders_query = orders_query.order_by(Ordini.Id_Ordine.asc())
+
+    # Execute the query
+    orders = orders_query.all()
 
     return render_template('purchases.html', orders=orders)
+
 
 @app.route('/checkout_cart', methods=['GET', 'POST'])
 @buyer_required
