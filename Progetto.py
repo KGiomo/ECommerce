@@ -7,7 +7,7 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:latuapassword@localhost:5432/ECommerce'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:21552155@localhost:5432/ECommerce'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(24)
 db = SQLAlchemy(app)
@@ -355,9 +355,11 @@ def add_product():
 @seller_required
 def product_reviews(product_id):
     user_id = session['user_id']
+    # SELECT * FROM Prodotti WHERE Id_Prodotto = product_id AND Venditore = user_id LIMIT 1;
     prodotto = Prodotti.query.filter_by(Id_Prodotto=product_id, Venditore=user_id).first()
     order = request.args.get('order', 'recent')  # Di default 'recent'
     
+    # SELECT * FROM Recensioni WHERE Prodotto = product_id ORDER BY order;
     if order == 'recent':
         recensioni = Recensioni.query.filter_by(Prodotto=product_id).order_by(Recensioni.Data.desc()).all()
     elif order == 'oldest':
@@ -411,6 +413,16 @@ def view_orders():
     order_by = request.args.get('order_by', 'id')  # Default: ordina per ID
     
     # Query per ottenere gli ordini contenenti prodotti del venditore corrente
+    '''SELECT Ordini.*, 
+       Utenti.Nome AS Nome_Acquirente, 
+       Utenti.Cognome AS Cognome_Acquirente
+    FROM Ordini
+    JOIN Acquirenti ON Ordini.Acquirente = Acquirenti.Id_Utente
+    JOIN Utenti ON Acquirenti.Id_Utente = Utenti.Id_Utente
+    JOIN Ordinato ON Ordini.Id_Ordine = Ordinato.Ordine
+    JOIN Prodotti ON Ordinato.Prodotto = Prodotti.Id_Prodotto
+    JOIN Venditori ON Prodotti.Venditore = Venditori.Utente
+    WHERE Venditori.Utente = user_id;'''
     orders_query = db.session.query(Ordini, Utenti.Nome.label('Nome_Acquirente'), Utenti.Cognome.label('Cognome_Acquirente')) \
                              .join(Acquirenti, Ordini.Acquirente == Acquirenti.Id_Utente) \
                              .join(Utenti, Acquirenti.Id_Utente == Utenti.Id_Utente) \
@@ -419,10 +431,12 @@ def view_orders():
                              .join(Venditori, Prodotti.Venditore == Venditori.Utente) \
                              .filter(Venditori.Utente == user_id)  # Filtra per venditore
     
+    # Prende orders_query e nel WHERE aggiunge la condizione AND Ordini.Stato_Ordine = 'stato_ordine';
     if stato_ordine:
         orders_query = orders_query.filter(Ordini.Stato_Ordine == stato_ordine)
     
     # Ordinare in base al criterio selezionato
+    # Prende orders_query ed aggiunge ORDER BY Ordini.Data_Ordine order_by
     if order_by == 'recent':
         orders_query = orders_query.order_by(Ordini.Data_Ordine.desc())
     elif order_by == 'oldest':
@@ -430,10 +444,10 @@ def view_orders():
     else:  # Default: ordina per ID
         orders_query = orders_query.order_by(Ordini.Id_Ordine.asc())
     
-    # Esegui la query
+    # Esegue la query
     orders = orders_query.all()
     
-    # Filtro aggiuntivo sui prodotti per venditore
+    # Filtro aggiuntivo sui prodotti per venditore (Serve per far visualizzare al venditore solo i suoi prodotti presenti nei vari ordini)
     filtered_orders = []
     for ordine, Nome_Acquirente, Cognome_Acquirente in orders:
         prodotti_filtrati = [item for item in ordine.ordinato if item.prodotto.Venditore == user_id]
@@ -470,9 +484,14 @@ def search_product():
         prezzo_max = request.form.get('max_price', None)
         venditore = request.form.get('seller', '')
         
-        #prodotti = db.session.query(Prodotti, Venditori.Nome_Negozio).join(Venditori, Prodotti.Venditore == Venditori.Utente)
-        
         # Query per ottenere tutti i prodotti con la media dei voti delle relative recensioni
+        '''SELECT Prodotti.*, 
+            Venditori.Nome_Negozio, 
+            AVG(Recensioni.Valutazione) AS media_valutazione
+        FROM Prodotti
+        LEFT JOIN Venditori ON Prodotti.Venditore = Venditori.Utente
+        LEFT JOIN Recensioni ON Prodotti.Id_Prodotto = Recensioni.Prodotto
+        GROUP BY Prodotti.Id_Prodotto, Venditori.Nome_Negozio;'''
         prodotti = db.session.query(
             Prodotti, 
             Venditori.Nome_Negozio,
@@ -482,6 +501,7 @@ def search_product():
         ).group_by(Prodotti.Id_Prodotto, Venditori.Nome_Negozio)
 
         # Filtraggio dei prodotti secondo i criteri scelti dall'utente
+        # Alla query prodotti prima del GROUP BY è come se aggiungesse WHERE (condizioni inserite nel form)
         if keyword:
             prodotti = prodotti.filter(Prodotti.Nome_Prodotto.ilike(f'%{keyword}%') | Prodotti.Descrizione.ilike(f'%{keyword}%'))
         
@@ -499,6 +519,8 @@ def search_product():
         
         return render_template('search_products.html', products=prodotti)
 
+    # Ottengo le categorie distinte dei prodotti
+    #SELECT DISTINCT Categoria FROM Prodotti;
     categories = db.session.query(Prodotti.Categoria.distinct())
     return render_template('search_products.html', categories=[c[0] for c in categories])
 
@@ -507,17 +529,21 @@ def search_product():
 def view_cart():
     user_id = session['user_id']
     # Trova il carrello dell'utente
+    # SELECT * FROM Carrelli WHERE Acquirente = user_id LIMIT 1;
     carrello = Carrelli.query.filter_by(Acquirente=user_id).first()
     
     if not carrello:
         return render_template('view_cart.html', carrelli=[])
 
     # Trova gli elementi nel carrello
+    # SELECT * FROM Contiene WHERE Carrello = carrello_id;
     items = Contiene.query.filter_by(Carrello=carrello.Id_Carrello).all()
     cart_items = []
     
     for item in items:
+        # SELECT * FROM Prodotti WHERE Id_Prodotto = item.Prodotto LIMIT 1;
         prodotto = Prodotti.query.get(item.Prodotto)
+        # SELECT * FROM Venditori WHERE Utente = prodotto.Venditore LIMIT 1;
         venditore = Venditori.query.get(prodotto.Venditore)
         cart_items.append({
             'prodotto': prodotto,
@@ -535,6 +561,12 @@ def update_quantity(product_id):
     if new_quantity < 1:
         return redirect(url_for('view_cart'))
     
+    '''SELECT Contiene.* 
+    FROM Contiene
+    JOIN Carrelli ON Contiene.Carrello = Carrelli.Id_Carrello
+    WHERE Carrelli.Acquirente = user_id
+    AND Contiene.Prodotto = product_id
+    LIMIT 1;'''
     carrello = db.session.query(Contiene).join(Carrelli).filter(
         Carrelli.Acquirente == session['user_id'],
         Contiene.Prodotto == product_id
@@ -548,6 +580,12 @@ def update_quantity(product_id):
 @app.route('/remove_from_cart/<int:product_id>', methods=['GET', 'POST'])
 @buyer_required
 def remove_from_cart(product_id):
+    '''SELECT Contiene.* 
+    FROM Contiene
+    JOIN Carrelli ON Contiene.Carrello = Carrelli.Id_Carrello
+    WHERE Carrelli.Acquirente = user_id
+    AND Contiene.Prodotto = product_id
+    LIMIT 1;'''
     carrello = db.session.query(Contiene).join(Carrelli).filter(
         Carrelli.Acquirente == session['user_id'],
         Contiene.Prodotto == product_id
@@ -569,6 +607,11 @@ def product_details(product_id):
     # Valore di default: 'recent'
     order = request.args.get('order', 'recent')  
 
+    '''SELECT Recensioni.*, Utenti.Nome, Utenti.Cognome
+    FROM Recensioni
+    JOIN Utenti ON Recensioni.Acquirente = Utenti.Id_Utente
+    WHERE Recensioni.Prodotto = product_id
+    ORDER BY Recensioni.Data/Recensioni.Valutazione order'''
     if order == 'recent':
         recensioni = db.session.query(Recensioni, Utenti.Nome, Utenti.Cognome).join(Utenti, Recensioni.Acquirente == Utenti.Id_Utente).filter(Recensioni.Prodotto == product_id).order_by(Recensioni.Data.desc()).all()
     elif order == 'oldest':
@@ -628,11 +671,18 @@ def add_to_cart(product_id):
     user_id = session['user_id']
     carrello = Carrelli.query.filter_by(Acquirente=user_id).first()
     
+    # Se non esiste il carrello viene creato
     if not carrello:
         carrello = Carrelli(Acquirente=user_id)
         db.session.add(carrello)
         db.session.commit()
     
+    # Controlla se il prodotto è già presente nel carrello ed aggiorna i dati di conseguenza
+    '''SELECT * 
+    FROM Contiene 
+    WHERE Carrello = carrello_id 
+    AND Prodotto = product_id 
+    LIMIT 1;'''
     contiene = Contiene.query.filter_by(Carrello=carrello.Id_Carrello, Prodotto=product_id).first()
     if contiene:
         contiene.Quantità = contiene.Quantità + quantity
@@ -648,28 +698,33 @@ def add_to_cart(product_id):
 def purchases():
     user_id = session['user_id']
     stato_ordine = request.args.get('stato_ordine')
-    order_by = request.args.get('order_by', 'id')  # Default sorting by ID
+    order_by = request.args.get('order_by', 'id')  # Ordina di default per l'ID
 
-    # Base query to retrieve all orders for the buyer
+    # Ottengo tutti i prodotti ordinati dall'utente
+    '''SELECT Ordini.*, Ordinato.*, Prodotti.*, Venditori.*
+    FROM Ordini
+    JOIN Ordinato ON Ordini.Id_Ordine = Ordinato.Ordine
+    JOIN Prodotti ON Ordinato.Prodotto = Prodotti.Id_Prodotto
+    JOIN Venditori ON Prodotti.Venditore = Venditori.Utente
+    WHERE Ordini.Acquirente = user_id;'''
     orders_query = (db.session.query(Ordini, Ordinato, Prodotti, Venditori)
                     .join(Ordinato, Ordini.Id_Ordine == Ordinato.Ordine)
                     .join(Prodotti, Ordinato.Prodotto == Prodotti.Id_Prodotto)
                     .join(Venditori, Prodotti.Venditore == Venditori.Utente)
                     .filter(Ordini.Acquirente == user_id))
 
-    # Apply filters if selected
+    # Vengono applicati i filtri in base al tipo di ordini che si vogliono visualizzare
     if stato_ordine:
         orders_query = orders_query.filter(Ordini.Stato_Ordine == stato_ordine)
 
-    # Apply sorting based on selected option
+    # Ordine in base all'impostazione scelta
     if order_by == 'recent':
         orders_query = orders_query.order_by(Ordini.Data_Ordine.desc())
     elif order_by == 'oldest':
         orders_query = orders_query.order_by(Ordini.Data_Ordine.asc())
-    else:  # Default sorting by ID
+    else:  # Ordina di default per l'ID
         orders_query = orders_query.order_by(Ordini.Id_Ordine.asc())
 
-    # Execute the query
     orders = orders_query.all()
 
     return render_template('purchases.html', orders=orders)
@@ -741,7 +796,7 @@ def checkout_cart():
         
         return redirect(url_for('purchases'))
 
-    # Mostra l'indirizzo di default dell'utente
+    # Recupera l'indirizzo di default dell'utente
     default_address = buyer.utente.Indirizzo
 
     return render_template('checkout_cart.html', default_address=default_address, cart_items=cart_items)
