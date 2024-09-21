@@ -10,6 +10,19 @@
             margin: 0;
             padding: 0;
         }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
         .header {
             display: flex;
             justify-content: space-between;
@@ -18,38 +31,55 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
+
         .welcome-message {
             margin: 0;
         }
+
         .nav-links {
             display: flex;
             gap: 15px;
         }
+
         .nav-link {
             margin: 0;
             text-decoration: none;
             color: #007bff;
             font-size: 16px;
         }
+
         .nav-link:hover {
             text-decoration: underline;
         }
+
         .content {
             padding: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         table, th, td {
             border: 1px solid #dee2e6;
         }
+
         th, td {
             padding: 10px;
             text-align: left;
         }
+
         .link-container {
             margin-bottom: 10px;
+        }
+
+        .order {
+            margin-bottom: 20px;
+        }
+
+        hr {
+            border: 1px solid #dee2e6;
         }
     </style>
 </head>
@@ -103,7 +133,6 @@
                     </li>
                 </ul>
                 <div class="link-container"><a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
-                <br>
             </div>
             <hr>
         {% endfor %}
