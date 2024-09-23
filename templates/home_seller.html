@@ -5,11 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Venditore</title>
     <style>
+        input[type="number"],
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial, sans-serif;   
+            justify-content: center;
+            align-items: center;
             margin: 0;
             padding: 0;
         }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -18,42 +36,50 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
+
         .welcome-message {
             margin: 0;
         }
+
         .nav-links {
             display: flex;
-            flex-grow: 1;
-            justify-content: center;
             gap: 15px;
         }
+
         .nav-link {
             margin: 0;
             text-decoration: none;
             color: #007bff;
             font-size: 16px;
         }
+
         .nav-link:hover {
             text-decoration: underline;
         }
+
         .shop-name {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 30px;
+            font-size: 18px;
+            font-weight: bold;
             color: #333;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin-left: 20px;
         }
-        .content {
+
+        .form-container {
+            max-width: 800px; 
+            margin: 20px auto; 
             padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: #f8f9fa;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
         <div class="nav-links">
-            <span class="shop-name">{{ session['user_shop'] }}</span>
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
             <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
             <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
             <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>

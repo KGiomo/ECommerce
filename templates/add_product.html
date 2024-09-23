@@ -5,11 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aggiungi prodotto</title>
     <style>
+        input[type="number"],
+        input[type="text"],
+        input[type="submit"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
         body {
             font-family: Arial, sans-serif;
+            justify-content: center;
+            align-items: center;
             margin: 0;
             padding: 0;
         }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Colore del bottone */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -18,63 +49,59 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
+
         .welcome-message {
             margin: 0;
         }
+
         .nav-links {
             display: flex;
-            flex-grow: 1;
-            justify-content: center;
             gap: 15px;
         }
+
         .nav-link {
             margin: 0;
             text-decoration: none;
             color: #007bff;
             font-size: 16px;
         }
+
         .nav-link:hover {
             text-decoration: underline;
         }
+
         .shop-name {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             color: #333;
+            margin-left: 20px;
         }
+
         .content {
             padding: 20px;
         }
+
         form {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
+
         input, textarea, select {
             padding: 10px;
             font-size: 16px;
             border: 1px solid #dee2e6;
             border-radius: 4px;
         }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
+
     </style>
 </head>
 <body>
     <div class="header">
         <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
         <div class="nav-links">
-            <span class="shop-name">{{ session['user_shop'] }}</span>
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
             <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
             <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
             <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>

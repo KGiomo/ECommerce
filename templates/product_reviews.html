@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -18,51 +19,78 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
+
         .welcome-message {
             margin: 0;
         }
+
         .nav-links {
             display: flex;
-            flex-grow: 1;
-            justify-content: center;
             gap: 15px;
         }
+
         .nav-link {
-            margin: 0;
             text-decoration: none;
             color: #007bff;
             font-size: 16px;
         }
+
         .nav-link:hover {
             text-decoration: underline;
         }
+
         .shop-name {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             color: #333;
+            margin-left: 20px;
         }
+
         .content {
-            padding: 20px;
+            padding: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         table, th, td {
             border: 1px solid #dee2e6;
         }
+
         th, td {
             padding: 10px;
             text-align: left;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        h2 {
+            padding: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1 class="welcome-message">Recensioni del Prodotto</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
         <div class="nav-links">
-            <span class="shop-name">{{ session['user_shop'] }}</span>
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
             <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
             <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
             <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
@@ -81,6 +109,7 @@
                     <option value="highest_rating" {% if request.args.get('order') == 'highest_rating' %}selected{% endif %}>Valutazione più alta</option>
                     <option value="lowest_rating" {% if request.args.get('order') == 'lowest_rating' %}selected{% endif %}>Valutazione più bassa</option>
                 </select>
+                <br><br> <!-- Forza il bottone su una nuova riga -->
                 <button type="submit">Applica</button>
             </form>
         </div><br>
