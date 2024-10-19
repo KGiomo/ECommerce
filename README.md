@@ -1,10 +1,10 @@
 # Piattaforma di E-commerce
 
-# Introduzione
+## Introduzione
 L’obiettivo del progetto è lo sviluppo di una web application che si interfaccia con un database relazionale. Il progetto è sviluppato in Python, utilizzando le librerie Flask e SQLAlchemy. Il DBMS scelto è PostgreSQL. 
 Di seguito sono presenti le specifiche.
 
-# Specifiche
+## Specifiche
 Ho curato il design e l’implementazione di un portale di e-commerce, dove gli utenti possono comprare e vendere i prodotti online. Il sistema include le seguenti funzionalità:
 - Gestione degli utenti: Ho implementato funzionalità di autenticazione e autorizzazione degli utenti. Gli utenti possono registrarsi, accedere e gestire i propri profili. Inoltre, sono presenti ruoli utente differenti come acquirenti e venditori, ognuno con il proprio insieme di permessi.
 - Gestione dei prodotti: Il database memorizza le informazioni sui prodotti, inclusi nome, descrizione, categoria, prezzo, disponibilità, ecc. I venditori possono aggiungere, modificare ed eliminare i propri prodotti.
