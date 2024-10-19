@@ -1,3 +1,8 @@
+'''
+Data di creazione: 15-7-2024
+Ultima modifica: 20-9-2024
+'''
+
 from datetime import date, datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
