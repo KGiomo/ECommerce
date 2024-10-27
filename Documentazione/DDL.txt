@@ -1,0 +1,85 @@
+CREATE TABLE Utenti (
+    Id_Utente INT PRIMARY KEY,
+    Nome VARCHAR(255) NOT NULL,
+    Cognome VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    Telefono VARCHAR(255) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Data_Registrazione DATE,
+    Indirizzo VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Admin (
+    Utente INT PRIMARY KEY,
+    FOREIGN KEY (Utente) REFERENCES Utenti(Id_Utente)
+);
+
+CREATE TABLE Venditori (
+    Utente INT PRIMARY KEY,
+    Nome_Negozio VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Utente) REFERENCES Utenti(Id_Utente)
+);
+
+CREATE TABLE Acquirenti (
+    Id_Utente INT PRIMARY KEY,
+    FOREIGN KEY (Id_Utente) REFERENCES Utenti(Id_Utente)
+);
+
+CREATE TABLE Prodotti (
+    Id_Prodotto INT PRIMARY KEY,
+    Nome_Prodotto VARCHAR(255) NOT NULL,
+    Descrizione VARCHAR(255),
+    Prezzo FLOAT NOT NULL,
+    Quantità FLOAT NOT NULL,
+    Categoria VARCHAR(255),
+    URL_Immagine VARCHAR(255),
+    Venditore INT,
+    FOREIGN KEY (Venditore) REFERENCES Venditori(Utente)
+);
+
+CREATE TABLE Carrelli (
+    Id_Carrello INT PRIMARY KEY,
+    Acquirente INT,
+    FOREIGN KEY (Acquirente) REFERENCES Acquirenti(Id_Utente)
+);
+
+CREATE TABLE Contiene (
+    Carrello INT,
+    Prodotto INT,
+    Quantità INT NOT NULL,
+    PRIMARY KEY (Carrello, Prodotto),
+    FOREIGN KEY (Carrello) REFERENCES Carrelli(Id_Carrello),
+    FOREIGN KEY (Prodotto) REFERENCES Prodotti(Id_Prodotto)
+);
+
+CREATE TABLE Ordini (
+    Id_Ordine INT PRIMARY KEY,
+    Data_Ordine DATE NOT NULL,
+    Stato_Ordine VARCHAR(255) NOT NULL CHECK (Stato_Ordine IN ('In attesa', 'In corso', 'Consegnato')),
+    Indirizzo_Spedizione VARCHAR(255) NOT NULL,
+    Metodo_Pagamento VARCHAR(255) NOT NULL,
+    Ora TIME,
+    Acquirente INT,
+    FOREIGN KEY (Acquirente) REFERENCES Acquirenti(Id_Utente)
+);
+
+CREATE TABLE Ordinato (
+    Ordine INT,
+    Prodotto INT,
+    Quantità INT NOT NULL,
+    PRIMARY KEY (Ordine, Prodotto),
+    FOREIGN KEY (Ordine) REFERENCES Ordini(Id_Ordine),
+    FOREIGN KEY (Prodotto) REFERENCES Prodotti(Id_Prodotto)
+);
+
+CREATE TABLE Recensioni (
+    Id_Recensione INT PRIMARY KEY,
+    Valutazione INT NOT NULL CHECK (Valutazione >= 1 AND Valutazione <= 5),
+    Testo VARCHAR(255),
+    Data DATE NOT NULL,
+    Ora TIME NOT NULL,
+    Acquirente INT,
+    Prodotto INT,
+    FOREIGN KEY (Acquirente) REFERENCES Acquirenti(Id_Utente),
+    FOREIGN KEY (Prodotto) REFERENCES Prodotti(Id_Prodotto)
+);

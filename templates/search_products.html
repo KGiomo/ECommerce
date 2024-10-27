@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati della Ricerca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .product-container {
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px;
+        }
+        .product-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .product-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .product-title {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .product-price,
+        .product-category,
+        .shop,
+        .product-rating {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        .link-container {
+            margin-bottom: 10px; /* Regola la distanza tra i link */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div>
+        {% for product, nome_negozio, media_valutazione in products %}
+            <div class="product-container">
+                <img src="{{ product.URL_Immagine }}" alt="{{ product.Nome_Prodotto }}" class="product-image">
+                <div class="product-details">
+                    <h2 class="product-title">{{ product.Nome_Prodotto }}</h2>
+                    <p class="shop">Venditore: {{ nome_negozio }}</p>
+                    <p class="product-price">Prezzo: €{{ product.Prezzo }}</p>
+                    <p class="product-category">Categoria: {{ product.Categoria }}</p><br><br>
+                    <p class="product-rating">
+                        Valutazione media: 
+                        {% if media_valutazione is not none %}
+                            {{ media_valutazione | round(1) }} / 5
+                        {% else %}
+                            0 / 5
+                        {% endif %}
+                    </p><br>
+                    <div class="link-container"><a href="{{ url_for('product_details', product_id=product.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

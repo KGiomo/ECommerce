@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I miei ordini</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-left: 20px;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
+            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
+            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Ordini</h2>
+        <form method="get" action="{{ url_for('view_orders') }}">
+            <label for="stato_ordine">Filtra per stato:</label>
+            <select name="stato_ordine" id="stato_ordine">
+                <option value="">Tutti</option>
+                <option value="In attesa">In attesa</option>
+                <option value="In corso">In corso</option>
+                <option value="Consegnato">Consegnato</option>
+            </select>
+            
+            <label for="order_by">Ordina per:</label>
+            <select name="order_by" id="order_by">
+                <option value="id" {% if request.args.get('order_by') == 'id' %}selected{% endif %}>ID Ordine</option>
+                <option value="recent" {% if request.args.get('order_by') == 'recent' %}selected{% endif %}>Più recenti</option>
+                <option value="oldest" {% if request.args.get('order_by') == 'oldest' %}selected{% endif %}>Meno recenti</option>
+            </select>
+        
+            <button type="submit">Applica</button>
+        </form><br><br>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Ordine</th>
+                    <th>Data Ordine</th>
+                    <th>Stato Ordine</th>
+                    <th>Indirizzo Spedizione</th>
+                    <th>Metodo Pagamento</th>
+                    <th>Nome Acquirente</th>
+                    <th>Cognome Acquirente</th>
+                    <th>Prodotto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ordine, Nome_Acquirente, Cognome_Acquirente, prodotti_filtrati in ordini %}
+                <tr>
+                    <td>{{ ordine.Id_Ordine }}</td>
+                    <td>{{ ordine.Data_Ordine }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('update_order_status', ordine_id=ordine.Id_Ordine) }}">
+                            <select name="stato_ordine">
+                                <option value="In attesa" {% if ordine.Stato_Ordine == 'In attesa' %}selected{% endif %}>In attesa</option>
+                                <option value="In corso" {% if ordine.Stato_Ordine == 'In corso' %}selected{% endif %}>In corso</option>
+                                <option value="Consegnato" {% if ordine.Stato_Ordine == 'Consegnato' %}selected{% endif %}>Consegnato</option>
+                            </select>
+                            <button type="submit">Aggiorna</button>
+                        </form>
+                    </td>
+                    <td>{{ ordine.Indirizzo_Spedizione }}</td>
+                    <td>{{ ordine.Metodo_Pagamento }}</td>
+                    <td>{{ Nome_Acquirente }}</td>
+                    <td>{{ Cognome_Acquirente }}</td>
+                    <td>
+                        <ul>
+                            {% for item in prodotti_filtrati %}
+                                <li>{{ item.prodotto.Nome_Prodotto }} - Quantità: {{ item.Quantità }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

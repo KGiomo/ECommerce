@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        img {
+            width: 100px;
+            height: auto;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-container input, .form-container textarea, .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-container button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <h2>Riepilogo Ordine</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Immagine</th>
+                    <th>Nome Prodotto</th>
+                    <th>Prezzo Unitario</th>
+                    <th>Venditore</th>
+                    <th>Quantità</th>
+                    <th>Totale</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td><img src="{{ item.prodotto.URL_Immagine }}" alt="{{ item.prodotto.Nome_Prodotto }}"></td>
+                    <td>{{ item.prodotto.Nome_Prodotto }}</td>
+                    <td>€{{ item.prodotto.Prezzo }}</td>
+                    <td>{{ item.negozio }}</td>
+                    <td>{{ item.quantità }}</td>
+                    <td>€{{ item.totale }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Inserisci i Dati di Spedizione</h2>
+        <div class="form-container">
+            <form action="{{ url_for('checkout_cart') }}" method="post">
+                <label for="address">Indirizzo di Spedizione</label>
+                <textarea id="address" name="address" required>{{ default_address }}</textarea>
+
+                <label for="city">Città</label>
+                <input type="text" id="city" name="city" required>
+
+                <label for="zip_code">CAP</label>
+                <input type="text" id="zip_code" name="zip_code" required>
+
+                <label for="payment_method">Metodo di Pagamento</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="">Seleziona un metodo</option>
+                    <option value="Carta di Credito">Carta di Credito</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Bonifico Bancario">Bonifico Bancario</option>
+                </select>
+
+                <button type="submit">Completa l'Ordine</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

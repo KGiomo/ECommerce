@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrello</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .link-container {
+            margin-bottom: 10px; /* Regola la distanza tra i link */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Il tuo carrello</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Immagine</th>
+                    <th>Nome prodotto</th>
+                    <th>Prezzo Unitario</th>
+                    <th>Venditore</th>
+                    <th>Quantità nel carrello</th>
+                    <th>Prezzo Totale</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in carrelli %}
+                <tr>
+                    <td>
+                        <center><img src="{{ item.prodotto.URL_Immagine }}" alt="{{ item.prodotto.Nome_Prodotto }}" style="width: 100px; height: auto;"></center>
+                    </td>
+                    <td>{{ item.prodotto.Nome_Prodotto }}</td>
+                    <td>€{{ item.prodotto.Prezzo }}</td>
+                    <td>{{ item.negozio }}</td>
+                    <td>
+                        <form action="{{ url_for('update_quantity', product_id=item.prodotto.Id_Prodotto) }}" method="POST">
+                            <input type="number" name="quantity" value="{{ item.quantità }}" min="1" required>
+                            <button type="submit">Aggiorna la quantità nel carrello</button>
+                        </form>
+                    </td>
+                    <td>€{{ item.totale }}</td>
+                    <td>
+                        <div class="link-container"><a href="{{ url_for('product_details', product_id=item.prodotto.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
+                        <div class="link-container"><a href="{{ url_for('remove_from_cart', product_id=item.prodotto.Id_Prodotto)}}" onclick="return confirm('Sei sicuro di voler rimuovere questo prodotto dal carrello?');">Rimuovi dal carrello</a></div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="{{ url_for('checkout_cart') }}" method="get">
+            <button type="submit">Vai alla Pagina di Pagamento</button>
+        </form>
+    </div>
+</body>
+</html>

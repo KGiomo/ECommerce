@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Prodotto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-left: 20px;
+        }
+        .content {
+            padding: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, textarea, select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
+            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
+            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Modifica Prodotto</h2>
+        <form action="{{ url_for('edit_product', id=product.Id_Prodotto) }}" method="POST">
+            <input type="text" name="name" placeholder="Nome prodotto" value="{{ product.Nome_Prodotto }}" required>
+            <textarea name="description" placeholder="Descrizione">{{ product.Descrizione }}</textarea>
+            <input type="number" step="0.01" name="price" placeholder="Prezzo" value="{{ product.Prezzo }}" required>
+            <input type="number" step="1" name="quantity" placeholder="Quantità" value="{{ product.Quantità }}" required>
+            <select id="category" name="category">
+                <option value="">Seleziona una categoria</option>
+                <option value="Bellezza" {% if product.Categoria == 'Bellezza' %}selected{% endif %}>Bellezza</option>
+                <option value="Salute e cura della persona" {% if product.Categoria == 'Salute e cura della persona' %}selected{% endif %}>Salute e cura della persona</option>
+                <option value="Alimentari e cura della casa" {% if product.Categoria == 'Alimentari e cura della casa' %}selected{% endif %}>Alimentari e cura della casa</option>
+                <option value="Prodotti per animali domestici" {% if product.Categoria == 'Prodotti per animali domestici' %}selected{% endif %}>Prodotti per animali domestici</option>
+                <option value="Prima infanzia" {% if product.Categoria == 'Prima infanzia' %}selected{% endif %}>Prima infanzia</option>
+                <option value="Casa e cucina" {% if product.Categoria == 'Casa e cucina' %}selected{% endif %}>Casa e cucina</option>
+                <option value="Sport e tempo libero" {% if product.Categoria == 'Sport e tempo libero' %}selected{% endif %}>Sport e tempo libero</option>
+                <option value="Moda" {% if product.Categoria == 'Moda' %}selected{% endif %}>Moda</option>
+                <option value="Industria e Scienza" {% if product.Categoria == 'Industria e Scienza' %}selected{% endif %}>Industria e Scienza</option>
+                <option value="Giardino e giardinaggio" {% if product.Categoria == 'Giardino e giardinaggio' %}selected{% endif %}>Giardino e giardinaggio</option>
+                <option value="Elettronica" {% if product.Categoria == 'Elettronica' %}selected{% endif %}>Elettronica</option>
+                <option value="Fai-da-te" {% if product.Categoria == 'Fai-da-te' %}selected{% endif %}>Fai-da-te</option>
+                <option value="Auto e Moto - Parti e Accessori" {% if product.Categoria == 'Auto e Moto - Parti e Accessori' %}selected{% endif %}>Auto e Moto - Parti e Accessori</option>
+                <option value="Videogiochi" {% if product.Categoria == 'Videogiochi' %}selected{% endif %}>Videogiochi</option>
+                <option value="Cancelleria e prodotti per ufficio" {% if product.Categoria == 'Cancelleria e prodotti per ufficio' %}selected{% endif %}>Cancelleria e prodotti per ufficio</option>
+                <option value="Elettrodomestici" {% if product.Categoria == 'Elettrodomestici' %}selected{% endif %}>Elettrodomestici</option>
+                <option value="Giochi e giocattoli" {% if product.Categoria == 'Giochi e giocattoli' %}selected{% endif %}>Giochi e giocattoli</option>
+                <option value="Informatica" {% if product.Categoria == 'Informatica' %}selected{% endif %}>Informatica</option>
+                <option value="Libri" {% if product.Categoria == 'Libri' %}selected{% endif %}>Libri</option>
+            </select>
+            <input type="text" name="image_url" placeholder="URL immagine" value="{{ product.URL_Immagine }}">
+            <button type="submit">Aggiorna Prodotto</button>
+        </form>
+    </div>
+</body>
+</html>

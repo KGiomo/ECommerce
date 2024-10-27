@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione</title>
+    <style>
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"],
+        input[type="address"],
+        input[type="shop"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;   
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Centra il form e imposta la larghezza */
+        .form-container {
+            max-width: 500px;
+            width: 100%; 
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .flash-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Registrazione</h1>
+        <form method="post" action="{{ url_for('register') }}">
+            <div>
+                <label for="name">Nome:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="surname">Cognome:</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="phone">Telefono:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div>
+                <label for="repassword">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <label for="password">Conferma la Password:</label>
+                <input type="password" id="repassword" name="repassword" required>
+            </div>
+            <div>
+                <label for="address">Indirizzo:</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div>
+                <label for="user_type">Tipo di Utente:</label>
+                <select id="user_type" name="user_type" required>
+                    <option value="acquirente">Acquirente</option>
+                    <option value="venditore">Venditore</option>
+                </select>
+            </div>
+            <div>
+                <label for="shop">Nome del Negozio (per i venditori):</label>
+                <input type="text" id="shop" name="shop">
+            </div>
+            <div>
+                <button type="submit">Registrati</button>
+            </div>
+        </form>
+
+        <!-- Codice che permette di lanciare il messaggio di errore nel caso l'email sia già nel database -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul>
+              {% for category, message in messages %}
+                <li class="flash-message">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

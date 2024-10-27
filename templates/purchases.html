@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I tuoi Ordini</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .welcome-message {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .link-container {
+            margin-bottom: 10px;
+        }
+
+        .order {
+            margin-bottom: 20px;
+        }
+
+        hr {
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>I tuoi ordini</h2>
+
+        <form method="get" action="{{ url_for('purchases') }}">
+            <label for="stato_ordine">Filtra per stato:</label>
+            <select name="stato_ordine" id="stato_ordine">
+                <option value="">Tutti</option>
+                <option value="In attesa">In attesa</option>
+                <option value="In corso">In corso</option>
+                <option value="Consegnato">Consegnato</option>
+            </select>
+            
+            <label for="order_by">Ordina per:</label>
+            <select name="order_by" id="order_by">
+                <option value="id" {% if request.args.get('order_by') == 'id' %}selected{% endif %}>ID Ordine</option>
+                <option value="recent" {% if request.args.get('order_by') == 'recent' %}selected{% endif %}>Più recenti</option>
+                <option value="oldest" {% if request.args.get('order_by') == 'oldest' %}selected{% endif %}>Meno recenti</option>
+            </select>
+        
+            <button type="submit">Applica</button>
+        </form>
+        <br>
+        <hr>
+        {% for ordine, ordinato, prodotto, venditore in orders %}
+            <div class="order">
+                <h3>ID Ordine: {{ ordine.Id_Ordine }}</h3>
+                <p>Data Ordine: {{ ordine.Data_Ordine }}</p>
+                <p>Stato Ordine: {{ ordine.Stato_Ordine }}</p>
+                <p>Indirizzo Spedizione: {{ ordine.Indirizzo_Spedizione }}</p>
+                <p>Metodo Pagamento: {{ ordine.Metodo_Pagamento }}</p>
+                <p>Nome del Negozio: {{ venditore.Nome_Negozio }}</p>
+                <h4>Prodotto:</h4>
+                <ul>
+                    <li>
+                        <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" width="50">
+                        {{ prodotto.Nome_Prodotto }} - Quantità: {{ ordinato.Quantità }} - Prezzo Totale: €{{ prodotto.Prezzo * ordinato.Quantità }}
+                    </li>
+                </ul>
+                <div class="link-container"><a href="{{ url_for('product_details', product_id=prodotto.Id_Prodotto) }}">Visualizza la Pagina del Prodotto</a></div>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+</body>
+</html>

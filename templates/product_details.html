@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{prodotto.Nome_Prodotto}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .welcome-message {
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        .product-details {
+            display: flex;
+            gap: 20px;
+        }
+        .product-image {
+            max-width: 300px;
+            max-height: 300px;
+        }
+        .product-info {
+            flex-grow: 1;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px; /* distanza sopra il bottone */
+            display: inline-block; /* Mantiene la dimensione originale senza forzare a 100% */
+        }
+        .reviews {
+            margin-top: 20px;
+        }
+        .review {
+            border-top: 1px solid #dee2e6;
+            padding: 10px 0;
+        }
+        .review:first-child {
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="product-details">
+            <img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" class="product-image">
+            <div class="product-info">
+                <h2>{{ prodotto.Nome_Prodotto }}</h2>
+                <p>{{ prodotto.Descrizione }}</p>
+                <p><strong>Prezzo:</strong> €{{ prodotto.Prezzo }}</p>
+                <p><strong>Categoria:</strong> {{ prodotto.Categoria }}</p>
+                <p><strong>Quantità Disponibile:</strong> {{ prodotto.Quantità }}</p>
+                <p><strong>Venditore:</strong> {{ prodotto.venditore.Nome_Negozio }}</p>
+            </div>
+        </div>
+        <div class="order-form">
+            <br><form action="{{ url_for('add_to_cart', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <label for="quantity">Quantità:</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+                <button type="submit">Aggiungi al Carrello</button>
+            </form><br><br>
+         
+            <form action="{{ url_for('checkout_product_get', product_id=prodotto.Id_Prodotto) }}" method="post">
+                <label for="quantity">Quantità:</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+                <button type="submit">Acquista Ora</button>
+            </form>
+            
+        </div>
+        <div>
+            <br><br>
+            <form action="{{ url_for('write_review', product_id=prodotto.Id_Prodotto) }}" method="get">
+                <button type="submit">Scrivi una Recensione</button><br><br>
+            </form>
+        </div>
+        <h3>Recensioni</h3>
+        <div class="review-filter-form">
+            <form method="get" action="{{ url_for('product_details', product_id=prodotto.Id_Prodotto) }}">
+                <label for="order">Ordina per:</label>
+                <select name="order" id="order">
+                    <option value="recent" {% if request.args.get('order') == 'recent' %}selected{% endif %}>Più recenti</option>
+                    <option value="oldest" {% if request.args.get('order') == 'oldest' %}selected{% endif %}>Meno recenti</option>
+                    <option value="highest_rating" {% if request.args.get('order') == 'highest_rating' %}selected{% endif %}>Valutazione più alta</option>
+                    <option value="lowest_rating" {% if request.args.get('order') == 'lowest_rating' %}selected{% endif %}>Valutazione più bassa</option>
+                </select>
+                <button type="submit">Applica</button>
+            </form>
+        </div>
+        <br><hr>
+        <div class="reviews">
+            {% for recensione, nome, cognome in recensioni %}
+            <div class="review">
+                <p><strong>Titolo:</strong> {{ recensione.Titolo }}</p>
+                <p><strong>Valutazione:</strong> {{ recensione.Valutazione }} / 5</p>
+                <p>{{ recensione.Testo }}</p>
+                <p><small>Recensito da {{ nome }} {{ cognome }} il {{ recensione.Data }}</small></p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

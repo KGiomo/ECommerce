@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostazioni</title>
+    <style>
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; 
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            width: 100%;
+            position: absolute;
+            top: 0;
+        }
+
+        .form-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-top: 300px; 
+            overflow-y: auto; 
+        }
+
+        .flash-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .welcome-message {
+            margin: 0;
+            padding-left: 20px; 
+            padding-right: 20px; 
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-right: 20px;
+        }
+
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Impostazioni dell'account</h1>
+        <div class="nav-links">
+            {% if session.get('user_shop') %}
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
+            {% else %}
+                <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            {% endif %}
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <!-- Codice che permette di lanciare il messaggio di errore nel caso il tentativo di login sia errato -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="flash-message">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('update_profile') }}" method="POST">
+            <h2>Modifica le informazioni dell'account</h2>
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" value="{{ session['user_name'] }}" required>
+
+            <label for="surname">Cognome:</label>
+            <input type="text" id="surname" name="surname" value="{{ session['user_surname'] }}" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ session['user_email'] }}" required>
+
+            <label for="phone">Telefono:</label>
+            <input type="tel" id="phone" name="phone" value="{{ session['user_phone'] }}" required>
+
+            <label for="address">Indirizzo:</label>
+            <input type="text" id="address" name="address" value="{{ session['user_address'] }}" required>
+
+            {% if session.get('user_shop') %}
+                <label for="shop">Nome del Negozio:</label>
+                <input type="text" id="shop" name="shop" value="{{ session['user_shop'] }}">
+            {% endif %}
+
+            <button type="submit">Salva le Modifiche</button>
+        </form>
+
+        <form action="{{ url_for('change_password') }}" method="POST">
+            <h2>Cambia la Password</h2>
+            <label for="current_password">Password Corrente:</label>
+            <input type="password" id="current_password" name="current_password" required>
+
+            <label for="new_password">Nuova Password:</label>
+            <input type="password" id="new_password" name="new_password" required>
+
+            <label for="confirm_password">Conferma la nuova Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+
+            <button type="submit">Cambia la Password</button>
+        </form>
+    </div>
+</body>
+</html>

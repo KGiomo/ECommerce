@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I miei prodotti</title>
+    <style>
+        input[type="number"],
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;   
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .welcome-message {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-left: 20px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .link-container {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
+            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
+            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>I tuoi prodotti</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Codice</th>
+                    <th>Nome</th>
+                    <th>Descrizione</th>
+                    <th>Prezzo</th>
+                    <th>Quantità</th>
+                    <th>Categoria</th>
+                    <th>Immagine</th>
+                    <th>Media Valutazioni</th>
+                    <th>Azione</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prodotto, media_valutazioni in prodotti %}
+                <tr>
+                    <td>{{ prodotto.Id_Prodotto }}</td>
+                    <td>{{ prodotto.Nome_Prodotto }}</td>
+                    <td>{{ prodotto.Descrizione }}</td>
+                    <td>{{ prodotto.Prezzo }}</td>
+                    <td>{{ prodotto.Quantità }}</td>
+                    <td>{{ prodotto.Categoria }}</td>
+                    <td>
+                        <center><img src="{{ prodotto.URL_Immagine }}" alt="{{ prodotto.Nome_Prodotto }}" style="width: 100px; height: auto;"></center>
+                    </td>
+                    <td><center>{{ '%.2f' % (media_valutazioni or 0) }} / 5</center></td>
+                    <td>
+                        <div class="link-container"><a href="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto) }}">Visualizza Recensioni</a></div>
+                        <div class="link-container"><a href="{{ url_for('edit_product', id=prodotto.Id_Prodotto) }}">Modifica</a></div>
+                        <div class="link-container"><a href="{{ url_for('delete_product', id=prodotto.Id_Prodotto) }}" onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">Elimina</a></div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benvenuto</title>
+    <style>
+        input[type="number"],
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;   
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .welcome-message {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            margin: 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-container {
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Ciao, {{ session['user_name'] }}!</h1>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_buyer') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_cart') }}">Carrello</a>
+            <a class="nav-link" href="{{ url_for('purchases') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h1>Cerca un prodotto</h1>
+        <form action="/search_products" method="post">
+            <label for="keyword">Parola Chiave:</label>
+            <input type="text" id="keyword" name="keyword"><br><br>
+            
+            <label for="category">Categoria:</label>
+            <select id="category" name="category">
+                <option value="">Seleziona una categoria</option>
+                <option value="Bellezza">Bellezza</option>
+                <option value="Salute e cura della persona">Salute e cura della persona</option>
+                <option value="Alimentari e cura della casa">Alimentari e cura della casa</option>
+                <option value="Prodotti per animali domestici">Prodotti per animali domestici</option>
+                <option value="Prima infanzia">Prima infanzia</option>
+                <option value="Casa e cucina">Casa e cucina</option>
+                <option value="Sport e tempo libero">Sport e tempo libero</option>
+                <option value="Moda">Moda</option>
+                <option value="Industria e Scienza">Industria e Scienza</option>
+                <option value="Giardino e giardinaggio">Giardino e giardinaggio</option>
+                <option value="Elettronica">Elettronica</option>
+                <option value="Fai-da-te">Fai-da-te</option>
+                <option value="Auto e Moto - Parti e Accessori">Auto e Moto - Parti e Accessori</option>
+                <option value="Videogiochi">Videogiochi</option>
+                <option value="Cancelleria e prodotti per ufficio">Cancelleria e prodotti per ufficio</option>
+                <option value="Elettrodomestici">Elettrodomestici</option>
+                <option value="Giochi e giocattoli">Giochi e giocattoli</option>
+                <option value="Informatica">Informatica</option>
+                <option value="Libri">Libri</option>
+            </select><br><br>
+            
+            <label for="min_price">Prezzo Minimo:</label>
+            <input type="number" id="min_price" name="min_price"><br><br>
+            
+            <label for="max_price">Prezzo Massimo:</label>
+            <input type="number" id="max_price" name="max_price"><br><br>
+
+            <label for="seller">Venditore:</label>
+            <input type="text" id="seller" name="seller"><br><br>
+            
+            <input type="submit" value="Cerca" class="submit-button">
+        </form>
+    </div>
+</body>
+</html>

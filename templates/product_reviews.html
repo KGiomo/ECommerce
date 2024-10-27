@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recensioni del Prodotto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .welcome-message {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-left: 20px;
+        }
+
+        .content {
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        h2 {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="welcome-message">Recensioni del Prodotto</h1>
+        <span class="shop-name">{{ session['user_shop'] }}</span>
+        <div class="nav-links">
+            <a class="nav-link" href="{{ url_for('home_seller') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_products') }}">I miei prodotti</a>
+            <a class="nav-link" href="{{ url_for('add_product') }}">Aggiungi prodotto</a>
+            <a class="nav-link" href="{{ url_for('view_orders') }}">Ordini</a>
+            <a class="nav-link" href="{{ url_for('settings') }}">Opzioni del profilo</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Recensioni per "{{ prodotto.Nome_Prodotto }}"</h2>
+        <div class="content">
+            <form method="get" action="{{ url_for('product_reviews', product_id=prodotto.Id_Prodotto) }}">
+                <label for="order_by">Ordina per:</label>
+                <select name="order" id="order_by">
+                    <option value="recent" {% if request.args.get('order') == 'recent' %}selected{% endif %}>Più recenti</option>
+                    <option value="oldest" {% if request.args.get('order') == 'oldest' %}selected{% endif %}>Più vecchi</option>
+                    <option value="highest_rating" {% if request.args.get('order') == 'highest_rating' %}selected{% endif %}>Valutazione più alta</option>
+                    <option value="lowest_rating" {% if request.args.get('order') == 'lowest_rating' %}selected{% endif %}>Valutazione più bassa</option>
+                </select>
+                <br><br> <!-- Forza il bottone su una nuova riga -->
+                <button type="submit">Applica</button>
+            </form>
+        </div><br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Valutazione</th>
+                    <th>Titolo</th>
+                    <th>Testo</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recensione in recensioni %}
+                <tr>
+                    <td>{{ recensione.Valutazione }} / 5</td>
+                    <td>{{ recensione.Titolo }}</td>
+                    <td>{{ recensione.Testo }}</td>
+                    <td>{{ recensione.Data }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
